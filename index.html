@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Road to 200 Pokemon Packs</title>
+  <style>
+    :root { --purple:#7c3aed; --cyan:#0891b2; --gold:#f59e0b; --ink:#172033; --muted:#64748b; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:Arial,sans-serif; color:var(--ink); background:linear-gradient(135deg,#f5f3ff,#fff,#ecfeff); min-height:100vh; }
+    .container { max-width:1100px; margin:auto; padding:36px 18px 60px; }
+    header { text-align:center; margin-bottom:28px; }
+    h1 { margin:0; font-size:clamp(2rem,6vw,3.5rem); }
+    header p { color:var(--muted); line-height:1.6; }
+    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:22px; }
+    .stat,.card { background:rgba(255,255,255,.93); border-radius:20px; box-shadow:0 10px 30px rgba(30,41,59,.08); }
+    .stat { padding:17px; }
+    .stat strong { display:block; font-size:1.55rem; margin-bottom:5px; }
+    .stat span { color:var(--muted); font-size:.75rem; font-weight:bold; text-transform:uppercase; letter-spacing:.08em; }
+    .sets { display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+    .card { padding:24px; }
+    .card-head { display:flex; justify-content:space-between; gap:15px; align-items:flex-start; }
+    h2 { margin:3px 0 0; }
+    .eyebrow { color:#94a3b8; font-size:.7rem; font-weight:bold; letter-spacing:.15em; text-transform:uppercase; }
+    .count { padding:10px 14px; border-radius:14px; text-align:center; font-weight:bold; }
+    .celebrations .count { color:#6d28d9; background:#ede9fe; }
+    .delta .count { color:#0e7490; background:#cffafe; }
+    .count b { display:block; font-size:1.6rem; }
+    .progress-label { display:flex; justify-content:space-between; margin:20px 0 7px; color:var(--muted); font-size:.85rem; font-weight:bold; }
+    .track { height:12px; background:#e2e8f0; border-radius:99px; overflow:hidden; }
+    .fill { height:100%; width:0; border-radius:99px; transition:width 1s ease; }
+    .celebrations .fill { background:var(--purple); }
+    .delta .fill { background:var(--cyan); }
+    .badges { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:18px 0; }
+    .badge { border:1px solid #e2e8f0; background:#f8fafc; color:#94a3b8; border-radius:12px; padding:9px 4px; text-align:center; font-size:.77rem; font-weight:bold; }
+    .badge.unlocked { background:#fffbeb; border-color:#fcd34d; color:#b45309; }
+    .grid { display:grid; grid-template-columns:repeat(10,1fr); gap:5px; }
+    .pack { aspect-ratio:3/4; border-radius:3px; background:#f1f5f9; border:1px solid #e2e8f0; }
+    .celebrations .pack.collected { background:var(--purple); border-color:var(--purple); }
+    .delta .pack.collected { background:var(--cyan); border-color:var(--cyan); }
+    .master { display:none; background:linear-gradient(90deg,#fbbf24,#fde047); text-align:center; border-radius:22px; padding:22px; margin-bottom:22px; box-shadow:0 10px 26px rgba(245,158,11,.25); }
+    .master h2 { margin:0 0 5px; }
+    footer { text-align:center; margin-top:28px; color:#94a3b8; font-size:.8rem; }
+    @keyframes fall { to { transform:translateY(110vh) rotate(720deg); opacity:.25; } }
+    @media(max-width:760px){ .stats{grid-template-columns:1fr 1fr}.sets{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Road to 200 Packs</h1>
+    <p>Collecting 100 packs each of <b>30th Celebrations</b> and <b>Delta Reign</b><br>by November 30, 2026.</p>
+  </header>
+  <section class="stats">
+    <div class="stat"><strong id="total">0 / 200</strong><span>Collected</span></div>
+    <div class="stat"><strong id="remaining">200</strong><span>Remaining</span></div>
+    <div class="stat"><strong id="days">0</strong><span>Days left</span></div>
+    <div class="stat"><strong id="pace">0</strong><span>Needed weekly</span></div>
+  </section>
+  <section id="master" class="master"><h2>🏆 Master Collector Unlocked!</h2><div>Both 100-pack goals are complete.</div></section>
+  <main class="sets">
+    <section class="card celebrations" data-set="celebrations"><div class="card-head"><div><div class="eyebrow">Collection goal</div><h2>✨ 30th Celebrations</h2></div><div class="count"><b class="number">0</b>of 100 packs</div></div><div class="progress-label"><span class="percent">0% complete</span><span class="left">100 remaining</span></div><div class="track"><div class="fill"></div></div><div class="badges"></div><div class="grid"></div></section>
+    <section class="card delta" data-set="delta"><div class="card-head"><div><div class="eyebrow">Collection goal</div><h2>⚡ Delta Reign</h2></div><div class="count"><b class="number">0</b>of 100 packs</div></div><div class="progress-label"><span class="percent">0% complete</span><span class="left">100 remaining</span></div><div class="track"><div class="fill"></div></div><div class="badges"></div><div class="grid"></div></section>
+  </main>
+  <footer>Update the two pack-count numbers near the top of the script whenever your collection grows.</footer>
+</div>
+<script>
+  // =====================================================
+  // UPDATE ONLY THESE TWO NUMBERS
+  // =====================================================
+  const CELEBRATIONS_PACKS = 0;
+  const DELTA_REIGN_PACKS = 0;
+
+  const TARGET_PER_SET = 100;
+  const TARGET_DATE = new Date("2026-11-30T23:59:59");
+  const clamp = value => Math.max(0, Math.min(TARGET_PER_SET, Number(value) || 0));
+  const counts = { celebrations: clamp(CELEBRATIONS_PACKS), delta: clamp(DELTA_REIGN_PACKS) };
+
+  function renderSet(name) {
+    const card = document.querySelector(`[data-set="${name}"]`);
+    const count = counts[name];
+    card.querySelector(".number").textContent = count;
+    card.querySelector(".percent").textContent = `${count}% complete`;
+    card.querySelector(".left").textContent = `${100-count} remaining`;
+    requestAnimationFrame(() => card.querySelector(".fill").style.width = `${count}%`);
+    card.querySelector(".badges").innerHTML = [25,50,75,100].map(m => `<div class="badge ${count>=m?'unlocked':''}">🏆 ${m}</div>`).join("");
+    card.querySelector(".grid").innerHTML = Array.from({length:100},(_,i)=>`<div class="pack ${i<count?'collected':''}"></div>`).join("");
+  }
+
+  function confetti() {
+    const colors=["#fbbf24","#7c3aed","#0891b2","#ef4444"];
+    for(let i=0;i<90;i++){
+      const dot=document.createElement("span");
+      dot.style.cssText=`position:fixed;z-index:99;top:-15px;left:${Math.random()*100}vw;width:9px;height:14px;background:${colors[i%colors.length]};transform:rotate(${Math.random()*360}deg);animation:fall ${2+Math.random()*2}s linear forwards;pointer-events:none`;
+      document.body.appendChild(dot); setTimeout(()=>dot.remove(),4300);
+    }
+  }
+
+  renderSet("celebrations"); renderSet("delta");
+  const total=counts.celebrations+counts.delta;
+  const remaining=200-total;
+  const days=Math.max(0,Math.ceil((TARGET_DATE-new Date())/86400000));
+  document.getElementById("total").textContent=`${total} / 200`;
+  document.getElementById("remaining").textContent=remaining;
+  document.getElementById("days").textContent=days;
+  document.getElementById("pace").textContent=(days ? remaining/days*7 : remaining).toFixed(1);
+  if(total===200){ document.getElementById("master").style.display="block"; confetti(); }
+</script>
+</body>
+</html>
